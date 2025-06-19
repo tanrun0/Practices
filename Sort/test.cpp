@@ -8,5 +8,9 @@ int main()
     Print(arr, "BubbleSort");
     InsertSort(arr);
     Print(arr, "InsertSort");
+    ShellSort(arr);
+    Print(arr, "ShellSort");
+    HeapSort(arr);
+    Print(arr, "HeapSort");
     return 0;
 }
