@@ -24,9 +24,23 @@ void BubbleSort(std::vector<int> &arr)
     }
 }
 
-// 2. 快速排序
-void QuickSort(std::vector<int> &arr)
+// 2. 快速排序（选一个 Key 作为基准，把原区间划分成 "已经排序好" 的区间）
+void QuickSort(std::vector<int> &arr, int left, int right) // [left, right)
 {
+    if(left + 1 >= right) return;
+    int key = arr[left]; // 选区间第一个元素为基准
+    int i = left; // 指向 <= key 区间的边界 (初始时区间为空，注意要略过第一个基准元素)
+    for(int j = left + 1; j < right; j++) // 从基准后一个位置开始分区
+    {
+        if(arr[j] < key)
+        {
+            i++;
+            std::swap(arr[i], arr[j]);
+        }
+    }
+    std::swap(arr[left], arr[i]); // 把基准和 <= key 区间的最后一个元素进行交换，让基准位于中间
+    QuickSort(arr, left, i);
+    QuickSort(arr, i + 1, right);
 }
 
 // 二、插入排序
@@ -98,4 +112,10 @@ void HeapSort(std::vector<int> &arr)
         // 调整堆，注意：此时已经排好了一个元素，堆应该缩小
         AdjustDwon(arr, i, 0);
     }
+}
+
+// 归并排序
+void MergeSort(std::vector<int> &arr)
+{
+
 }

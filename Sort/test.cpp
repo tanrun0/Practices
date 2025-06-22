@@ -12,5 +12,7 @@ int main()
     Print(arr, "ShellSort");
     HeapSort(arr);
     Print(arr, "HeapSort");
+    QuickSort(arr, 0, arr.size() - 1);
+    Print(arr, "QuickSort");
     return 0;
 }
