@@ -12,7 +12,11 @@ int main()
     Print(arr, "ShellSort");
     HeapSort(arr);
     Print(arr, "HeapSort");
-    QuickSort(arr, 0, arr.size() - 1);
-    Print(arr, "QuickSort");
+    QuickSort(arr, 0, arr.size() - 1, PartSort1);
+    Print(arr, "QuickSort_PartSort1");
+    QuickSort(arr, 0, arr.size() - 1, PartSort2);
+    Print(arr, "QurickSort_PartSort2");
+    QuickSort(arr, 0, arr.size() - 1, PartSort3);
+    Print(arr, "QurickSort_PartSort3");
     return 0;
 }

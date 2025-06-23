@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <functional>
 void Print(std::vector<int> &arr, std::string s)
 {
     std::cout << "----------------" << s << "----------------" << std::endl;
@@ -24,24 +25,78 @@ void BubbleSort(std::vector<int> &arr)
     }
 }
 
+using func_t = std::function<int(std::vector<int>&, int, int)>;
 // 2. 快速排序（选一个 Key 作为基准，把原区间划分成 "已经排序好" 的区间）
-void QuickSort(std::vector<int> &arr, int left, int right) // [left, right)
+// 递归版本
+void QuickSort(std::vector<int> &arr, int left, int right, func_t partsort) // [left, right]
 {
-    if(left + 1 >= right) return;
-    int key = arr[left]; // 选区间第一个元素为基准
-    int i = left; // 指向 <= key 区间的边界 (初始时区间为空，注意要略过第一个基准元素)
-    for(int j = left + 1; j < right; j++) // 从基准后一个位置开始分区
+    if(left >= right) return;
+    int pivot = partsort(arr, left, right);
+    QuickSort(arr, left, pivot - 1, partsort);
+    QuickSort(arr, pivot + 1, right, partsort);
+}
+
+int PartSort1(std::vector<int> &arr, int left, int right)
+{
+    int key = arr[right];
+    int i = left - 1; // i 始终指向 <= key 的边界
+    for(int j = left; j <= right - 1; j++) // 遍历到 key 的前一个元素
     {
-        if(arr[j] < key)
+        if(arr[j] <= key)
+            std::swap(arr[++i], arr[j]);
+    }
+    std::swap(arr[++i], arr[right]); // 把基准放到正确位置
+    return i; // 返回 key 所在的位置
+}
+
+// 快速排序挖坑法（也是一种分区方法）：初始时把基准元素的位置当做坑，然后左右交替填坑
+int PartSort2(std::vector<int> &arr, int left, int right)
+{
+    int key = arr[right];
+    int hole = right; // 把最后一个元素位置当坑（则先找 > key 的元素填到这个坑里面）
+    while (left < right)
+    {
+        // 从左向右找大于基准值的元素
+        while (left < right && arr[left] <= key)
+            left++;
+        if (left < right)
         {
-            i++;
-            std::swap(arr[i], arr[j]);
+            arr[hole] = arr[left]; // 将找到的元素填入坑中
+            hole = left;       // 更新坑的位置（找左侧）
+        }
+
+        // 从右向左找小于基准值的元素
+        while (left < right && arr[right] >= key)
+            right--;
+        if (left < right)
+        {
+            arr[hole] = arr[right]; // 将找到的元素填入坑中
+            hole = right;       // 更新坑的位置
         }
     }
-    std::swap(arr[left], arr[i]); // 把基准和 <= key 区间的最后一个元素进行交换，让基准位于中间
-    QuickSort(arr, left, i);
-    QuickSort(arr, i + 1, right);
+    arr[hole] = key;
+    return hole; // 返回key的位置
 }
+
+// 前后指针法
+// prev 始终指向 <= key 的区间的边界， cur 指向 当前遍历到的节点
+int PartSort3(std::vector<int> &arr, int left, int right)
+{
+    int key = arr[right];
+    int prev = left - 1;
+    int cur = left;
+    while(cur < right)
+    {
+        if(arr[cur] < key && ++prev < cur) // 可以避免一下自己和自己交换，其实就算交换了也无所谓
+            std::swap(arr[prev], arr[cur]);
+        cur++;
+    }
+    std::swap(arr[++prev], arr[right]);
+    return prev;
+}
+
+// 快排（非递归版本）
+
 
 // 二、插入排序
 // 1. 直接插入排序(分为已排序区 和 未排序区，每次把从未排序区选一个元素key插入到已排序区的正确位置)
@@ -84,7 +139,7 @@ void ShellSort(std::vector<int> &arr)
 
 // 堆排序
 // 我们把堆定大的元素依次放到数组的最后，所以要大根堆
-void AdjustDwon(std::vector<int> &arr, int n, int i)  // n : 没排序好的元素的个数
+void AdjustDwon(std::vector<int> &arr, int n, int i) // n : 没排序好的元素的个数
 {
     int child = i * 2 + 1;
     while (child < n)
@@ -105,7 +160,7 @@ void HeapSort(std::vector<int> &arr)
     // 先建堆
     for (int i = n / 2 - 1; i >= 0; i--) // 从非叶子节点开始调整 -> 建堆
         AdjustDwon(arr, n, i);
-    for(int i = n - 1; i >= 1; i--) // 每次排好一个元素，待排序的“堆”越来越小
+    for (int i = n - 1; i >= 1; i--) // 每次排好一个元素，待排序的“堆”越来越小
     {
         // 把堆顶和当前堆最后一个元素交换-> 排序
         std::swap(arr[0], arr[i]);
@@ -117,5 +172,4 @@ void HeapSort(std::vector<int> &arr)
 // 归并排序
 void MergeSort(std::vector<int> &arr)
 {
-
 }
