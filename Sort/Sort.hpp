@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <stack>
 void Print(std::vector<int> &arr, std::string s)
 {
     std::cout << "----------------" << s << "----------------" << std::endl;
@@ -96,6 +97,30 @@ int PartSort3(std::vector<int> &arr, int left, int right)
 }
 
 // 快排（非递归版本）
+// 用栈来模拟递归调用的过程
+// 待排序的数组越来越小，等到最后一个小数组排序好了 -> 整个数组就排序好了
+void QuickSort_N(std::vector<int> &arr, int left, int right, func_t partsort) // [left, right]
+{
+    int n = arr.size();
+    std::stack<std::pair<int, int>> st; // {区间开始, 区间结尾}
+    st.push({0, n -1});
+    while(!st.empty())
+    {
+        int low = st.top().first; // 待排序区间的开始
+        int hight = st.top().second;
+
+        int pi = partsort(arr, low, hight); // key 的下标
+
+        st.pop(); // (相当于递归中函数调用完毕)把排序好的大区间 pop 出去
+
+        // 新的调用入栈
+        if(pi - 1 > low) // 还有左区间
+            st.push({low, pi - 1});
+        if(pi + 1 < hight)
+            st.push({pi + 1, hight});
+    }
+}
+
 
 
 // 二、插入排序
