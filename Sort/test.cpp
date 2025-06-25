@@ -20,5 +20,7 @@ int main()
     Print(arr, "QurickSort_PartSort3");
     QuickSort_N(arr, 0, arr.size() - 1, PartSort1);
     Print(arr, "QuickSort_N_PartSort1");
+    MergeSort(arr, 0, arr.size() - 1);
+    Print(arr, "MergeSort");
     return 0;
 }

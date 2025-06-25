@@ -195,6 +195,25 @@ void HeapSort(std::vector<int> &arr)
 }
 
 // 归并排序
-void MergeSort(std::vector<int> &arr)
+// 真正的排序是在向上返回合并数组的时候
+void MergeSort(std::vector<int> &arr, int left, int right)
 {
+    if(left >= right) return;
+    int mid = (left + right) >> 1;
+    // 递归左右区间
+    MergeSort(arr, left, mid); // 要包含 mid 也需要排序
+    MergeSort(arr, mid + 1, right);
+    
+    // 对左右区间进行合并
+    int i = 0, p1 = left, p2 = mid + 1; // 一个指向元数组的指针，一个指向左区间一个指向右区间
+    std::vector<int> tmp;
+    tmp.resize(right - left + 1); // 开一个区间大小的临时空间
+    while(p1 <= mid && p2 <= right)
+        tmp[i++] = arr[p1] < arr[p2] ? arr[p1++] : arr[p2++];
+    while(p1 <= mid)
+        tmp[i++] = arr[p1++];
+    while(p2 <= right)
+        tmp[i++] = arr[p2++];
+    for(int i = 0; i < right - left + 1; i++)
+        arr[i + left] = tmp[i]; // 要赋值回原数组正确的位置上
 }
