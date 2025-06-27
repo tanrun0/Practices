@@ -1,10 +1,11 @@
 // 模拟实现 stirng 类
 // 要求有：1. 构造; 2. 拷贝构造; 3. 移动构造
-// 其他基本的接口：1. 获取大小; 2. 判读是否为空;3. 转换成 C 风格字符串
-// 运算符重载: [], >, +, = (拷贝赋值 and 移动赋值)
+// 其他基本的接口：1. 获取大小; 2. 判读是否为空; 3. 转换成 C 风格字符串
+// 运算符重载: [], >, +, ==, (拷贝赋值 and 移动赋值)
 
 #include<cstring>
 #include<iostream>
+#include<cassert>
 
 namespace tr
 {
@@ -30,6 +31,12 @@ namespace tr
             std::strcpy(_data, str._data);
         }
 
+        String(String&& str) // 移动构造
+        {
+            std::swap(_size, str._size);
+            std::swap(_data, str._data);
+        }
+
         int Size() const // const 成员不能调用非 const成员函数，因为怕成员被修改
         {
             return _size;
@@ -46,12 +53,64 @@ namespace tr
         }
 
         // 返回引用减少拷贝
-        String& operator=(String str)
+        String& operator=(const String& str) // 拷贝赋值(传统写法, 深拷贝)
         {
-            // 函数内部的 str 是拷贝（形参）
+            _size = str.Size();
+            _data = new char[_size + 1];
+            std::strcpy(_data, str._data);
+            return *this; // 为了实现连续赋值，第二次把引用作为参数传给 str 的时候会隐式转换，拷贝引用指向的对象
+        }
+
+        // 现代写法，但是不能和下面这个移动赋值同时存在，因为传参有二义性，右值引用即可以传到这里拷贝，也可以传到下面
+        // String& operator=(String str)
+        // {
+        //     std::swap(_data, str._data);
+        //     std::swap(_size, str._size);
+        //     return *this
+        // }
+
+        String& operator=(String&& str)  // 移动赋值（编译器根据引用类型找最匹配的 =函数匹配）
+        {
             std::swap(_data, str._data);
             std::swap(_size, str._size);
-            return *this; // 为了实现连续赋值，第二次把引用作为参数传给 str 的时候会隐式转换，拷贝引用指向的对象
+            return *this;
+        }
+
+        bool operator>(const String& str) const
+        {
+            return std::strcmp(this->C_str(), str.C_str()) < 0;
+        }
+
+        bool operator==(const String& str) const
+        {
+            return std::strcmp(this->C_str(), str.C_str()) == 0;
+        }
+
+        char& operator[](int pos)
+        {
+            assert(pos >= 0 && pos < _size);
+            return _data[pos];
+        }
+
+        String& operator+=(const String& str)
+        {
+            int newsize = this->_size + str._size;
+            char * tmp = new char[newsize + 1];
+            // 复制内容
+            std::memcpy(tmp, _data, _size);
+            std::memcpy(tmp + _size, str._data, str._size);
+            tmp[newsize] = '\0';
+            delete[] _data;
+            _data = tmp;
+            _size = newsize;
+            return *this;
+        }
+
+        String operator+(const String& str)
+        {
+              // 返回临时对象（右值），用右值移动构造临时变量（不过这步会被优化）
+              // 由于我们实现了移动赋值，所以真正的优化点在: 最后用临时对象移动赋值给接受返回值的 String
+            return String (*this) += str;
         }
 
         ~String()
