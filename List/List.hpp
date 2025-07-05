@@ -30,7 +30,7 @@ public:
     {
     public:
         Node* _node; // 迭代器底层用指针封装
-        iterator() : _node(nullptr) {}
+        iterator(Node* node = nullptr) : _node(node) {}
         T& operator*() {return _node->data;}
         T* operator->() {return &_node->data; }
         iterator& operator++(){ _node = _node->next; return *this; }
@@ -68,7 +68,7 @@ public:
         prev->next = newnode;
         cur->prev = newnode;
         newnode->next = cur;
-        newnode-prev = prev;
+        newnode->prev = prev;
         return iterator(newnode);
     }
 
