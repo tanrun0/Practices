@@ -1,4 +1,4 @@
-test:test.cpp
+test:main.cpp
 	g++ -o $@ $^
 .PHONY:clean
 clean:
